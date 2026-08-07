@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="NmeaMsfsBridge.App/NmeaMsfsBridge.App.csproj" />
+  <Project Path="NmeaMsfsBridge.Tests/NmeaMsfsBridge.Tests.csproj" />
+</Solution>

@@ -1,0 +1,177 @@
+PLAN DE PROYECTO - MSFS -> NMEA -> XCSoar (Desktop)
+
+Fecha: 2026-08-06
+Stack: C# con .NET 10
+Objetivo: Aplicacion local en Windows que lea telemetria de Microsoft Flight Simulator (MSFS) y la emita en formato NMEA para que XCSoar de escritorio la consuma en la misma maquina.
+
+==================================================
+1) OBJETIVO FUNCIONAL
+==================================================
+- Conectar con MSFS y leer datos de vuelo en tiempo real.
+- Transformar esos datos a sentencias NMEA validas para XCSoar.
+- Publicar NMEA por un canal local sencillo y configurable (TCP o UDP en localhost).
+- Mantener estabilidad en ejecuciones largas (sin fugas, sin bloqueos, reconexion automatica).
+
+==================================================
+2) ALCANCE (MVP)
+==================================================
+Incluye:
+- Conexion a MSFS y lectura periodica de las siguientes SimVars:
+  - PLANE LATITUDE
+  - PLANE LONGITUDE
+  - PLANE ALTITUDE
+  - GPS GROUND SPEED
+  - GPS GROUND TRUE TRACK
+  - PRESSURE ALTITUDE
+  - AIRSPEED INDICATED
+  - VERTICAL SPEED
+  - MAGVAR
+  - ZULU TIME
+  - ZULU DAY OF MONTH
+  - ZULU MONTH OF YEAR
+  - ZULU YEAR
+  - SIM ON GROUND
+
+- Generacion de sentencias NMEA minimas:
+  - GGA (Posición, hora UTC, calidad del fix, satélites, HDOP y altitud GPS)
+  - RMC Posición, velocidad sobre el suelo, rumbo, fecha y validez del fix
+  - PGRMZ (Altitud barométrica/de presión)
+  - LXWP0 (Vario, velocidad indicada, altitud barométrica y datos de vuelo)
+  - PFLAU (Estado de FLARM, alarmas y funcionamiento)
+  - PFLAA (Tráfico FLARM detectado, posición y velocidad)
+  - HDT/HDM (Rumbo magnético y verdadero)
+  - MWV (Velocidad y ángulo del viento)
+  
+- Salida de datos por localhost:
+  - Opcion A (preferida para simplicidad): TCP server local (ej. 127.0.0.1:4353)
+  - Opcion B: UDP unicast local (ej. 127.0.0.1:10110)
+- Configuracion por archivo appsettings.json.
+- Logs basicos rotados por tamano.
+
+No incluye en MVP:
+- UI compleja (solo consola).
+- Instalador MSI.
+- Integracion con multiples simuladores.
+- Soporte multi-cliente remoto fuera de localhost.
+
+==================================================
+3) PRINCIPIOS DE DISENO (SIMPLE, SIN DEUDA)
+==================================================
+- Un solo proceso, una sola responsabilidad: puente MSFS->NMEA.
+- Separacion minima por capas (sin sobreingenieria):
+  1. Input MSFS
+  2. Transformacion NMEA
+  3. Output red local
+- Configuracion tipada y validada al inicio.
+- Manejo de errores explicito y reconexion con backoff.
+- Pruebas unitarias donde mas valor aportan: checksum NMEA, conversiones, formato de campos.
+
+==================================================
+4) ARQUITECTURA SENCILLA PROPUESTA
+==================================================
+Proyecto unico de aplicacion consola .NET 10 (si luego crece, separar librerias):
+
+- Program.cs
+  - Bootstrap, DI ligero, lectura config, arranque de servicios.
+
+- MsfsTelemetryService
+  - Gestiona conexion a MSFS (SimConnect o API elegida).
+  - Publica muestras de telemetria en un modelo interno (FlightSample).
+
+- NmeaEncoder
+  - Convierte FlightSample a sentencias NMEA (GGA, RMC, opcional LXWP0).
+  - Calcula checksum y serializa con CRLF.
+
+- NmeaOutputService
+  - Expone stream NMEA por TCP/UDP en localhost.
+  - Gestiona clientes, desconexiones y reintentos.
+
+- Health/Watchdog simple
+  - Detecta falta de datos de MSFS y reporta estado en logs.
+
+==================================================
+5) CONTRATOS DE DATOS
+==================================================
+FlightSample (modelo interno):
+- TimestampUtc (DateTime)
+- LatitudeDeg (double)
+- LongitudeDeg (double)
+- AltitudeMeters (double)
+- GroundSpeedKnots (double)
+- TrackDegreesTrue (double)
+- VerticalSpeedMps (double?)
+- FixQuality (int, por defecto 1)
+- Satellites (int, valor fijo configurable para simulacion)
+
+Reglas:
+- Todas las conversiones de unidades centralizadas en NmeaEncoder.
+- Evitar formato locale-dependiente: siempre InvariantCulture.
+
+==================================================
+6) PLAN DE ENTREGA POR FASES
+==================================================
+Fase 0 - Preparacion (0.5 dia)
+- Crear solucion .NET 10 consola.
+- Definir appsettings.json y opciones tipadas.
+- Configurar logging estructurado.
+
+Fase 1 - Lectura MSFS (1-2 dias)
+- Conectar a MSFS.
+- Leer variables base en intervalo configurable (ej. 5-10 Hz).
+- Exponer FlightSample estable.
+
+Fase 2 - Codificacion NMEA (1 dia)
+- Implementar GGA y RMC completos.
+- Implementar checksum y validaciones.
+- Tests unitarios de formato NMEA.
+
+Fase 3 - Salida a XCSoar (1 dia)
+- Implementar TCP server localhost (y opcional UDP).
+- Probar conexion desde XCSoar desktop.
+- Ajustar tasa de envio para consumo estable.
+
+Fase 4 - Robustez minima (1 dia)
+- Reconexion automatica MSFS.
+- Tolerancia a desconexion de cliente XCSoar.
+- Logs de diagnostico y estado.
+
+Fase 5 - Cierre MVP (0.5-1 dia)
+- Documentacion corta de uso.
+- Checklist de pruebas manuales.
+- Empaquetado simple (dotnet publish).
+
+==================================================
+7) DEFINICION DE HECHO (DoD)
+==================================================
+- XCSoar muestra posicion y movimiento en tiempo real durante al menos 30 min.
+- Si MSFS se cierra y vuelve, la app se recupera sola.
+- Si XCSoar se desconecta/reconecta, vuelve a recibir NMEA sin reiniciar app.
+- No hay excepciones no controladas en logs en el flujo normal.
+- Pruebas unitarias clave en verde.
+
+==================================================
+8) RIESGOS Y MITIGACIONES
+==================================================
+Riesgo: diferencias de soporte NMEA en XCSoar.
+Mitigacion: empezar con GGA+RMC estandar, luego ampliar solo si falta algun dato.
+
+Riesgo: jitter o frecuencia irregular desde MSFS.
+Mitigacion: buffer pequeno y temporizacion fija de salida.
+
+Riesgo: conversiones de unidades/formatos incorrectas.
+Mitigacion: pruebas unitarias con casos conocidos y validacion de checksum.
+
+==================================================
+9) CHECKLIST TECNICO INICIAL
+==================================================
+- Confirmar metodo de conexion a MSFS (SimConnect recomendado).
+- Confirmar modo de entrada en XCSoar (TCP o UDP, puerto).
+- Definir frecuencia objetivo de actualizacion (ej. 5 Hz para empezar).
+- Crear repositorio de pruebas con muestras NMEA esperadas.
+
+==================================================
+10) SIGUIENTE PASO PRACTICO
+==================================================
+Implementar primero un prototipo vertical minimo:
+MSFS sample -> GGA/RMC -> TCP localhost -> XCSoar conectado.
+Una vez funcione extremo a extremo, endurecer reconexion, logs y tests.

@@ -16,7 +16,7 @@ var version = informationalVersion?.Split('+')[0]
 	?? entryAssembly?.GetName().Version?.ToString(3)
 	?? "desconocida";
 
-Console.WriteLine($"NMEA MSFS2024 XCSoar Bridge {version}.");
+Console.WriteLine($"NMEA MSFS2024 XCSoar Bridge {version}");
 Console.WriteLine($"Creado por Juan Carlos Quijano Abad - {DateTime.Now.Year}");
 Console.WriteLine();
 
@@ -43,23 +43,19 @@ builder.Services.AddHostedService<BridgeWatchdogService>();
 builder.Services.AddLogging(logging =>
 {
 	logging.ClearProviders();
-	logging.AddSimpleConsole(options =>
-	{
-		options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff ";
-		options.SingleLine = true;
-	});
 });
 
 var app = builder.Build();
 
-var startupLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
 var options = app.Services.GetRequiredService<IOptions<BridgeOptions>>().Value;
-startupLogger.LogInformation(
-	"Starting bridge: protocol={Protocol} endpoint={Host}:{Port} txHz={TxHz} telemetryHz={TelemetryHz}",
-	options.Output.Protocol,
+Console.WriteLine(
+	"Estableciendo el Bridge: {0} en la direccion {1}:{2}, a {3}hz de tx y {4}Hz de telemetria.",
+	options.Output.Protocol.ToUpperInvariant(),
 	options.Output.Host,
 	options.Output.Port,
 	options.Output.TransmitHz,
 	options.Telemetry.PollHz);
+Console.WriteLine("Presione Ctrl+C para cerrar la aplicacion");
+Console.WriteLine();
 
 await app.RunAsync();

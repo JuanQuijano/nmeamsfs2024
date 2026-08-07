@@ -16,6 +16,8 @@ public sealed class MsfsTelemetryService : BackgroundService
     private readonly ILogger<MsfsTelemetryService> _logger;
     private readonly TelemetryState _telemetryState;
     private readonly BridgeOptions _options;
+    private bool _waitingPrinted;
+    private bool _connectedPrinted;
 
     public MsfsTelemetryService(
         IOptions<BridgeOptions> options,
@@ -30,12 +32,10 @@ public sealed class MsfsTelemetryService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var interval = TimeSpan.FromSeconds(1.0 / _options.Telemetry.PollHz);
-        _logger.LogInformation("Telemetry service started at {PollHz} Hz", _options.Telemetry.PollHz);
 
         var angle = 0.0;
         if (!_options.Telemetry.UseSimulatorData)
         {
-            _logger.LogWarning("UseSimulatorData=false. Using synthetic telemetry generator.");
             while (!stoppingToken.IsCancellationRequested)
             {
                 _telemetryState.Update(BuildSyntheticSample(DateTime.UtcNow, angle));
@@ -48,6 +48,7 @@ public sealed class MsfsTelemetryService : BackgroundService
 
         SimConnectClient? simConnect = null;
         var lastConnectAttempt = DateTime.MinValue;
+    PrintWaitingOnce();
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -72,6 +73,7 @@ public sealed class MsfsTelemetryService : BackgroundService
                 {
                     _logger.LogWarning(ex, "SimConnect read failed. Reconnecting and using fallback telemetry until available.");
                     simConnect = await DisconnectAndDisposeAsync(simConnect);
+                    PrintWaitingOnce();
                     _telemetryState.Update(BuildSyntheticSample(DateTime.UtcNow, angle));
                     angle = IncrementAngle(angle);
                 }
@@ -96,14 +98,39 @@ public sealed class MsfsTelemetryService : BackgroundService
         {
             var client = new SimConnectClient("NmeaMsfsBridge");
             await client.ConnectAsync(IntPtr.Zero, 0, 0, cancellationToken);
-            _logger.LogInformation("Connected to MSFS through SimConnect. MSFS2024={Is2024}", client.IsMSFS2024);
+            PrintConnectedOnce();
             return client;
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
-            _logger.LogInformation(ex, "SimConnect is not available yet. Waiting for simulator...");
+            _logger.LogDebug(ex, "SimConnect is not available yet.");
+            PrintWaitingOnce();
             return null;
         }
+    }
+
+    private void PrintWaitingOnce()
+    {
+        if (_waitingPrinted)
+        {
+            return;
+        }
+
+        Console.WriteLine("Esperando la conexion con el simulador");
+        _waitingPrinted = true;
+        _connectedPrinted = false;
+    }
+
+    private void PrintConnectedOnce()
+    {
+        if (_connectedPrinted)
+        {
+            return;
+        }
+
+        Console.WriteLine("Conectado al simulador");
+        _connectedPrinted = true;
+        _waitingPrinted = false;
     }
 
     private async Task<FlightSample> ReadFromSimulatorAsync(SimConnectClient client, CancellationToken cancellationToken)

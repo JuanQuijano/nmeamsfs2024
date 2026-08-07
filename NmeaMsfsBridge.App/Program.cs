@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,18 @@ using Microsoft.Extensions.Options;
 using NmeaMsfsBridge.App.Configuration;
 using NmeaMsfsBridge.App.Models;
 using NmeaMsfsBridge.App.Services;
+
+var entryAssembly = Assembly.GetEntryAssembly();
+var informationalVersion = entryAssembly?
+	.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+	.InformationalVersion;
+var version = informationalVersion?.Split('+')[0]
+	?? entryAssembly?.GetName().Version?.ToString(3)
+	?? "desconocida";
+
+Console.WriteLine($"NMEA MSFS2024 XCSoar Bridge {version}.");
+Console.WriteLine($"Creado por Juan Carlos Quijano Abad - {DateTime.Now.Year}");
+Console.WriteLine();
 
 var builder = Host.CreateApplicationBuilder(args);
 

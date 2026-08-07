@@ -23,6 +23,7 @@ Console.WriteLine();
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Configuration
+	.SetBasePath(AppContext.BaseDirectory)
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	.AddEnvironmentVariables(prefix: "NMEA_BRIDGE_");
 

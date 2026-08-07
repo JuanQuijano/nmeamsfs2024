@@ -33,8 +33,7 @@ Parametros importantes:
 Como inicializarlo (sin VS Code)
 --------------------------------
 1) Arranca Microsoft Flight Simulator.
-2) Ve a la carpeta de distribucion:
-   dist\NmeaMsfsBridge-win-x64
+2) Ve a la carpeta donde lo has descargado:
 3) Ejecuta:
    NmeaMsfsBridge.App.exe
 4) Deja la ventana abierta (si la cierras, el bridge se detiene).
@@ -42,10 +41,14 @@ Como inicializarlo (sin VS Code)
 Comprobacion rapida
 -------------------
 Al iniciar correctamente deberias ver mensajes como:
-- Starting bridge...
-- Telemetry service started...
-- TCP output listening on 127.0.0.1:4353
-- Connected to MSFS through SimConnect...
+NMEA MSFS2024 XCSoar Bridge 1.0.1
+Creado por Juan Carlos Quijano Abad - 2026
+
+Estableciendo el Bridge: TCP en la direccion 127.0.0.1:4353, a 5hz de tx y 5Hz de telemetria.
+Presione Ctrl+C para cerrar la aplicacion
+
+Esperando la conexion con el simulador
+Conectado al simulador
 
 Integracion con XCSoar
 ----------------------
@@ -67,3 +70,9 @@ Notas
 -----
 - Este ejecutable es standalone (no necesita abrir VS Code).
 - Si cambias appsettings.json, reinicia el ejecutable para aplicar cambios.
+
+Publicar una nueva release
+--------------------------
+Ejecuta estos comandos:
+- git tag v1.0.2
+- git push origin v1.0.2

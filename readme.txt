@@ -1,78 +1,78 @@
 NMEA MSFS BRIDGE - README
 =========================
 
-Que hace este programa
+What this program does
 ----------------------
-Este programa conecta Microsoft Flight Simulator (MSFS) con aplicaciones que entienden NMEA (por ejemplo XCSoar).
+This program connects Microsoft Flight Simulator (MSFS) with applications that understand NMEA (for example XCSoar).
 
-Funcionamiento resumido:
-1) Lee telemetria de vuelo desde MSFS por SimConnect.
-2) Convierte esa telemetria a sentencias NMEA compatibles.
-3) Publica el flujo NMEA por TCP en 127.0.0.1:4353 (configurable).
+Summary of operation:
+1) Reads flight telemetry from MSFS through SimConnect.
+2) Converts that telemetry into NMEA-compatible sentences.
+3) Publishes the NMEA stream over TCP at 127.0.0.1:4353 (configurable).
 
-Sentencias NMEA emitidas (modo compatibilidad actual):
+NMEA sentences emitted (current compatibility mode):
 - GPGGA
 - GPRMC
-- WIMWV (viento true)
+- WIMWV (true wind)
 
-Archivo de configuracion
-------------------------
-La configuracion se guarda en appsettings.json.
+Configuration file
+------------------
+The configuration is saved in appsettings.json.
 
-Ubicaciones habituales:
-- Si ejecutas desde la carpeta de publicacion:
+Common locations:
+- If you run from the publish folder:
   dist\NmeaMsfsBridge-win-x64\appsettings.json
-- Si ejecutas desde el proyecto:
+- If you run from the project:
   NmeaMsfsBridge.App\appsettings.json
 
-Parametros importantes:
-- Bridge.Telemetry.PollHz: frecuencia de lectura de telemetria
-- Bridge.Output.TransmitHz: frecuencia de envio NMEA
-- Bridge.Output.Host y Bridge.Output.Port: destino TCP (por defecto 127.0.0.1:4353)
+Important parameters:
+- Bridge.Telemetry.PollHz: telemetry read frequency
+- Bridge.Output.TransmitHz: NMEA transmission frequency
+- Bridge.Output.Host and Bridge.Output.Port: TCP destination (default 127.0.0.1:4353)
 
-Como inicializarlo (sin VS Code)
---------------------------------
-1) Arranca Microsoft Flight Simulator.
-2) Ve a la carpeta donde lo has descargado:
-3) Ejecuta:
+How to start it (without VS Code)
+---------------------------------
+1) Start Microsoft Flight Simulator.
+2) Go to the folder where you downloaded it:
+3) Run:
    NmeaMsfsBridge.App.exe
-4) Deja la ventana abierta (si la cierras, el bridge se detiene).
+4) Leave the window open (if you close it, the bridge stops).
 
-Comprobacion rapida
--------------------
-Al iniciar correctamente deberias ver mensajes como:
+Quick check
+-----------
+When started correctly, you should see messages such as:
 NMEA MSFS2024 XCSoar Bridge 1.0.1
-Creado por Juan Carlos Quijano Abad - 2026
+Created by Juan Carlos Quijano Abad - 2026
 
-Estableciendo el Bridge: TCP en la direccion 127.0.0.1:4353, a 5hz de tx y 5Hz de telemetria.
-Presione Ctrl+C para cerrar la aplicacion
+Setting up the Bridge: TCP at 127.0.0.1:4353, at 5Hz tx and 5Hz telemetry.
+Press Ctrl+C to close the application
 
-Esperando la conexion con el simulador
-Conectado al simulador
+Waiting for connection with the simulator
+Connected to the simulator
 
-Integracion con XCSoar
-----------------------
-Configura un dispositivo en XCSoar como cliente TCP con:
+Integration with XCSoar
+-----------------------
+Configure a device in XCSoar as a TCP client with:
 - Host: 127.0.0.1
-- Puerto: 4353
+- Port: 4353
 - Driver: Generic
 
-Si no aparece viento en XCSoar, revisa:
-- Que el dispositivo este conectado.
-- Que la opcion de viento externo este habilitada en XCSoar.
+If wind does not appear in XCSoar, check:
+- That the device is connected.
+- That the external wind option is enabled in XCSoar.
 
-Parar el programa
------------------
-- Cierra la ventana de consola del bridge.
-- O pulsa Ctrl+C dentro de la consola.
+Stopping the program
+--------------------
+- Close the bridge console window.
+- Or press Ctrl+C inside the console.
 
-Notas
+Notes
 -----
-- Este ejecutable es standalone (no necesita abrir VS Code).
-- Si cambias appsettings.json, reinicia el ejecutable para aplicar cambios.
+- This executable is standalone (it does not need VS Code to be opened).
+- If you change appsettings.json, restart the executable to apply the changes.
 
-Publicar una nueva release
---------------------------
-Ejecuta estos comandos:
+Publishing a new release
+------------------------
+Run these commands:
 - git tag v1.0.2
 - git push origin v1.0.2

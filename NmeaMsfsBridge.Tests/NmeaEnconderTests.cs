@@ -36,7 +36,7 @@ public class NmeaEncoderTests
             satellites: 7,
             hdop: 0.9);
 
-        var gga = encoder.Encode(sample)[0];
+        var gga = FindByPrefix(encoder.Encode(sample), "$GPGGA,");
         var fields = ExtractPayloadFields(gga);
 
         Assert.Equal("GPGGA", fields[0]);
@@ -55,7 +55,7 @@ public class NmeaEncoderTests
         var encoder = new NmeaEncoder();
         var sample = BuildSample(magneticVariationDeg: -2.5);
 
-        var rmc = encoder.Encode(sample)[1];
+        var rmc = FindByPrefix(encoder.Encode(sample), "$GPRMC,");
         var fields = ExtractPayloadFields(rmc);
 
         Assert.Equal("GPRMC", fields[0]);
@@ -82,10 +82,12 @@ public class NmeaEncoderTests
 
             var sentences = encoder.Encode(sample);
 
-            Assert.DoesNotContain(',', sentences[0].Split('*')[0].Split('$')[1].Split(',')[9]);
-            Assert.Contains("52.3", sentences[1]);
-            Assert.Contains("183.7", sentences[1]);
-            Assert.Contains("987.6", sentences[0]);
+            var gga = FindByPrefix(sentences, "$GPGGA,");
+            var rmc = FindByPrefix(sentences, "$GPRMC,");
+            Assert.DoesNotContain(',', gga.Split('*')[0].Split('$')[1].Split(',')[9]);
+            Assert.Contains("52.3", rmc);
+            Assert.Contains("183.7", rmc);
+            Assert.Contains("987.6", gga);
         }
         finally
         {
@@ -120,6 +122,11 @@ public class NmeaEncoderTests
         var trimmed = sentence.TrimEnd('\r', '\n');
         var payload = trimmed.Substring(1, trimmed.IndexOf('*') - 1);
         return payload.Split(',');
+    }
+
+    private static string FindByPrefix(IReadOnlyList<string> sentences, string prefix)
+    {
+        return sentences.First(sentence => sentence.StartsWith(prefix, StringComparison.Ordinal));
     }
 
     private static FlightSample BuildSample(

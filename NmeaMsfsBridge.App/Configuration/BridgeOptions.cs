@@ -17,6 +17,9 @@ public sealed class BridgeOptions
 
     [Required]
     public DefaultsOptions Defaults { get; init; } = new();
+
+    [Required]
+    public StreamStabilityOptions StreamStability { get; init; } = new();
 }
 
 public sealed class TelemetryOptions
@@ -59,4 +62,15 @@ public sealed class DefaultsOptions
 
     [Range(0.1, 99.9)]
     public double Hdop { get; init; } = 0.9;
+}
+
+public sealed class StreamStabilityOptions
+{
+    public bool Enabled { get; init; } = true;
+
+    [Range(1, 20000)]
+    public double GeographicJumpKilometers { get; init; } = 100;
+
+    [Range(1, 20)]
+    public int StableSamplesRequired { get; init; } = 3;
 }

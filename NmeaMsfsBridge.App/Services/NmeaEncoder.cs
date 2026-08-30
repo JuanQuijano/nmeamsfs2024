@@ -9,8 +9,8 @@ public sealed class NmeaEncoder : INmeaEncoder
     {
         var sentences = new List<string>
         {
-            BuildGga(sample),
             BuildRmc(sample),
+            BuildGga(sample),
             BuildMwv(sample)
         };
 
@@ -20,7 +20,7 @@ public sealed class NmeaEncoder : INmeaEncoder
     private static string BuildGga(FlightSample sample)
     {
         var utc = sample.TimestampUtc;
-        var time = utc.ToString("HHmmss.00", CultureInfo.InvariantCulture);
+        var time = utc.ToString("HHmmss.ff", CultureInfo.InvariantCulture);
         var (lat, latHemisphere) = ToLatitudeNmea(sample.LatitudeDeg);
         var (lon, lonHemisphere) = ToLongitudeNmea(sample.LongitudeDeg);
 
@@ -47,7 +47,7 @@ public sealed class NmeaEncoder : INmeaEncoder
     private static string BuildRmc(FlightSample sample)
     {
         var utc = sample.TimestampUtc;
-        var time = utc.ToString("HHmmss.00", CultureInfo.InvariantCulture);
+        var time = utc.ToString("HHmmss.ff", CultureInfo.InvariantCulture);
         var date = utc.ToString("ddMMyy", CultureInfo.InvariantCulture);
         var (lat, latHemisphere) = ToLatitudeNmea(sample.LatitudeDeg);
         var (lon, lonHemisphere) = ToLongitudeNmea(sample.LongitudeDeg);

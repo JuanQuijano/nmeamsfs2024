@@ -14,8 +14,8 @@ public class NmeaExtendedSentenceSpecificationTests
         var sentences = encoder.Encode(sample);
 
         Assert.Equal(3, sentences.Count);
-        Assert.StartsWith("$GPGGA,", sentences[0], StringComparison.Ordinal);
-        Assert.StartsWith("$GPRMC,", sentences[1], StringComparison.Ordinal);
+        Assert.StartsWith("$GPRMC,", sentences[0], StringComparison.Ordinal);
+        Assert.StartsWith("$GPGGA,", sentences[1], StringComparison.Ordinal);
         Assert.StartsWith("$WIMWV,", sentences[2], StringComparison.Ordinal);
     }
 

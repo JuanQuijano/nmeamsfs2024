@@ -13,6 +13,7 @@ public sealed class NmeaBridgeService : BackgroundService
     private readonly INmeaOutput _output;
     private readonly TelemetryState _telemetryState;
     private readonly BridgeOptions _options;
+    private readonly NmeaStreamStabilizer _streamStabilizer;
 
     public NmeaBridgeService(
         INmeaEncoder encoder,
@@ -25,6 +26,7 @@ public sealed class NmeaBridgeService : BackgroundService
         _output = output;
         _telemetryState = telemetryState;
         _options = options.Value;
+        _streamStabilizer = new NmeaStreamStabilizer(_options.StreamStability);
         _logger = logger;
     }
 
@@ -37,9 +39,9 @@ public sealed class NmeaBridgeService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             var sample = _telemetryState.GetLatest();
-            if (sample is not null)
+            if (sample is not null && _streamStabilizer.TryAccept(sample, out var stabilizedSample))
             {
-                var sentences = _encoder.Encode(sample);
+                var sentences = _encoder.Encode(stabilizedSample);
                 await _output.BroadcastAsync(sentences, stoppingToken);
             }
 

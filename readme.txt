@@ -29,6 +29,9 @@ Important parameters:
 - Bridge.Telemetry.PollHz: telemetry read frequency
 - Bridge.Output.TransmitHz: NMEA transmission frequency
 - Bridge.Output.Host and Bridge.Output.Port: TCP destination (default 127.0.0.1:4353)
+- Bridge.StreamStability.Enabled: pauses NMEA while a new location is stabilised
+- Bridge.StreamStability.GeographicJumpKilometers: distance that starts a clean stream restart (default 100)
+- Bridge.StreamStability.StableSamplesRequired: complete samples required before resuming output (default 3)
 
 How to start it (without VS Code)
 ---------------------------------

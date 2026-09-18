@@ -19,6 +19,8 @@ public sealed class NmeaOutputService : INmeaOutput
     private CancellationTokenSource? _internalCts;
     private int _clientId;
 
+    public int ConnectedClientCount => _tcpClients.Count;
+
     public NmeaOutputService(IOptions<BridgeOptions> options, ILogger<NmeaOutputService> logger)
     {
         _logger = logger;

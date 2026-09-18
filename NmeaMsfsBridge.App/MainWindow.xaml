@@ -1,0 +1,59 @@
+<Window x:Class="NmeaMsfsBridge.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NMEA MSFS Bridge"
+        Width="520"
+        Height="390"
+        MinWidth="480"
+        MinHeight="350"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="NMEA MSFS2024 XCSoar Bridge"
+                   FontSize="22"
+                   FontWeight="SemiBold"/>
+        <TextBlock x:Name="SummaryText"
+                   Grid.Row="1"
+                   Margin="0,6,0,20"
+                   Foreground="#666666"/>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Microsoft Flight Simulator" FontWeight="SemiBold" Margin="0,0,0,14"/>
+            <TextBlock x:Name="SimulatorStatusText" Grid.Column="1" Margin="0,0,0,14"/>
+            <TextBlock Text="Clientes XCSoar" FontWeight="SemiBold" Grid.Row="1" Margin="0,0,0,14"/>
+            <TextBlock x:Name="ClientsText" Grid.Column="1" Grid.Row="1" Margin="0,0,0,14"/>
+            <TextBlock Text="Última telemetría" FontWeight="SemiBold" Grid.Row="2" Margin="0,0,0,14"/>
+            <TextBlock x:Name="TelemetryAgeText" Grid.Column="1" Grid.Row="2" Margin="0,0,0,14"/>
+            <TextBlock Text="Frecuencia telemetría" FontWeight="SemiBold" Grid.Row="3" Margin="0,0,0,14"/>
+            <TextBlock x:Name="TelemetryRateText" Grid.Column="1" Grid.Row="3" Margin="0,0,0,14"/>
+            <TextBlock Text="Frecuencia NMEA" FontWeight="SemiBold" Grid.Row="4" Margin="0,0,0,14"/>
+            <TextBlock x:Name="TransmitRateText" Grid.Column="1" Grid.Row="4" Margin="0,0,0,14"/>
+            <TextBlock Text="Salida" FontWeight="SemiBold" Grid.Row="5"/>
+            <TextBlock x:Name="OutputText" Grid.Column="1" Grid.Row="5"/>
+        </Grid>
+
+        <TextBlock x:Name="FooterText"
+                   Grid.Row="3"
+                   Margin="0,20,0,0"
+                   Foreground="#666666"/>
+    </Grid>
+</Window>

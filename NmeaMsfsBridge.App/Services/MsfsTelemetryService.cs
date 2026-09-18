@@ -36,6 +36,7 @@ public sealed class MsfsTelemetryService : BackgroundService
         var angle = 0.0;
         if (!_options.Telemetry.UseSimulatorData)
         {
+            _telemetryState.SetSimulatorConnected(true);
             while (!stoppingToken.IsCancellationRequested)
             {
                 _telemetryState.Update(BuildSyntheticSample(DateTime.UtcNow, angle));
@@ -48,6 +49,7 @@ public sealed class MsfsTelemetryService : BackgroundService
 
         SimConnectClient? simConnect = null;
         var lastConnectAttempt = DateTime.MinValue;
+        _telemetryState.SetSimulatorConnected(false);
     PrintWaitingOnce();
 
         while (!stoppingToken.IsCancellationRequested)
@@ -68,11 +70,13 @@ public sealed class MsfsTelemetryService : BackgroundService
                 {
                     var sample = await ReadFromSimulatorAsync(simConnect, stoppingToken);
                     _telemetryState.Update(sample);
+                    _telemetryState.SetSimulatorConnected(true);
                 }
                 catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
                 {
                     _logger.LogWarning(ex, "SimConnect read failed. Reconnecting and using fallback telemetry until available.");
                     simConnect = await DisconnectAndDisposeAsync(simConnect);
+                    _telemetryState.SetSimulatorConnected(false);
                     PrintWaitingOnce();
                     _telemetryState.Update(BuildSyntheticSample(DateTime.UtcNow, angle));
                     angle = IncrementAngle(angle);

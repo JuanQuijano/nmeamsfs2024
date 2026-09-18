@@ -9,6 +9,7 @@ Summary of operation:
 1) Reads flight telemetry from MSFS through SimConnect.
 2) Converts that telemetry into NMEA-compatible sentences.
 3) Publishes the NMEA stream over TCP at 127.0.0.1:4353 (configurable).
+4) Shows a status window with simulator connection, XCSoar clients and telemetry age.
 
 NMEA sentences emitted (current compatibility mode):
 - GPGGA
@@ -40,6 +41,12 @@ How to start it (without VS Code)
 3) Run:
    NmeaMsfsBridge.App.exe
 4) Leave the window open (if you close it, the bridge stops).
+
+Status window
+-------------
+The window shows whether MSFS is connected, the number of connected XCSoar TCP clients,
+the configured frequencies and the output destination. It refreshes every second.
+Closing the window also stops the bridge.
 
 Quick check
 -----------
